@@ -58,6 +58,17 @@ export default {
           darkblue: "#166FE5",
           gray: "#F0F2F5",
           darkgray: "#1c1e21",
+        },
+        // Explicit colors for Material Design
+        vibrant: {
+          primary: "#2196F3",    // Primary blue
+          secondary: "#FF4081",  // Secondary pink
+          info: "#03A9F4",       // Info blue
+          success: "#4CAF50",    // Success green
+          warning: "#FFC107",    // Warning yellow
+          error: "#F44336",      // Error red
+          surface: "#FFFFFF",    // Surface white
+          background: "#F5F5F5", // Background light gray
         }
       },
       borderRadius: {
