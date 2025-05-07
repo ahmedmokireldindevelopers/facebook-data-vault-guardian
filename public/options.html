@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook Data Vault - Options</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    h1 {
+      color: #2196F3;
+      border-bottom: 2px solid #FF4081;
+      padding-bottom: 10px;
+    }
+    
+    .option-section {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    button {
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: #1976D2;
+    }
+    
+    .language-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .language-option {
+      padding: 8px 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .language-option.active {
+      background-color: #2196F3;
+      color: white;
+      border-color: #2196F3;
+    }
+    
+    .subscription-info {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    
+    .subscription-badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 12px;
+      margin-left: 10px;
+    }
+    
+    .basic {
+      background-color: #e0e0e0;
+      color: #616161;
+    }
+    
+    .premium {
+      background-color: #2196F3;
+      color: white;
+    }
+    
+    .enterprise {
+      background-color: #FF4081;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Facebook Data Vault Options</h1>
+  
+  <div class="subscription-info">
+    <h2>Your Subscription <span id="subscription-tier" class="subscription-badge basic">Basic</span></h2>
+    <p id="subscription-description">Basic features with limited extraction capabilities.</p>
+    <button id="upgrade-subscription">Upgrade Subscription</button>
+  </div>
+  
+  <div class="option-section">
+    <h2>Language Settings</h2>
+    <div class="language-selector">
+      <div class="language-option active" data-lang="en">English</div>
+      <div class="language-option" data-lang="ar">العربية</div>
+    </div>
+  </div>
+  
+  <div class="option-section">
+    <h2>Storage Settings</h2>
+    <label for="storage-path">Storage Path</label>
+    <input type="text" id="storage-path" value="Nagport/extracted_data/" />
+    <p>Your extracted data will be saved to this location.</p>
+  </div>
+  
+  <div class="option-section">
+    <h2>Extraction Settings</h2>
+    <label>
+      <input type="checkbox" id="auto-detect" checked />
+      Auto-detect Facebook page details
+    </label>
+    <label>
+      <input type="checkbox" id="show-extraction-icons" checked />
+      Show extraction icons on Facebook
+    </label>
+    <label>
+      <input type="checkbox" id="real-time-sync" checked />
+      Enable real-time data synchronization
+    </label>
+  </div>
+  
+  <div class="option-section">
+    <h2>Export Preferences</h2>
+    <label for="default-export">Default Export Format</label>
+    <select id="default-export">
+      <option value="csv">CSV (with headers)</option>
+      <option value="json">JSON (with metadata)</option>
+      <option value="text">Plain Text (one ID per line)</option>
+    </select>
+  </div>
+  
+  <button id="save-options">Save Options</button>
+  
+  <script src="options.js"></script>
+</body>
+</html>
