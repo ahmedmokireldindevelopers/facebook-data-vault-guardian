@@ -6,6 +6,7 @@ import { ExtractButton } from "@/components/ExtractButton";
 import { ExportMenu } from "@/components/ExportMenu";
 import { StatusCard } from "@/components/StatusCard";
 import { DataTable, DataItem } from "@/components/DataTable";
+import { ExtractionControls } from "@/components/ExtractionControls";
 import { Users, MessageCircle, FileText, Group, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,6 +35,7 @@ export function Dashboard() {
   const [data, setData] = useState<DataItem[]>([]);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [activeExtractor, setActiveExtractor] = useState<any>(null);
 
   // Initialize storage
   useEffect(() => {
@@ -93,6 +95,7 @@ export function Dashboard() {
   const handleExtract = async (type: 'friends' | 'messages' | 'posts' | 'groups') => {
     try {
       const extractor = createExtractor(type);
+      setActiveExtractor(extractor);
       
       // Add status listener
       extractor.onStatusChange((status) => {
@@ -100,6 +103,7 @@ export function Dashboard() {
         
         // If extraction completed, reload data
         if (status === 'complete' || status === 'error') {
+          setActiveExtractor(null);
           loadData();
         }
       });
@@ -116,10 +120,59 @@ export function Dashboard() {
       await extractor.extract();
     } catch (error) {
       console.error(`Error extracting ${type}:`, error);
+      setActiveExtractor(null);
       toast({
         title: "Extraction Failed",
         description: `Failed to extract ${type} data.`,
         variant: "destructive",
+      });
+    }
+  };
+
+  // Handle interval change
+  const handleIntervalChange = (interval: number) => {
+    if (activeExtractor) {
+      activeExtractor.setDelay(interval);
+    }
+  };
+
+  // Handle pause extraction
+  const handlePauseExtraction = () => {
+    if (activeExtractor) {
+      activeExtractor.pause();
+      setExtractorStatus(prevStatus => ({
+        ...prevStatus,
+        status: 'idle',
+        message: 'Extraction paused'
+      }));
+    }
+  };
+
+  // Handle resume extraction
+  const handleResumeExtraction = () => {
+    if (activeExtractor) {
+      activeExtractor.resume();
+      setExtractorStatus(prevStatus => ({
+        ...prevStatus,
+        status: 'extracting',
+        message: 'Extraction resumed'
+      }));
+    }
+  };
+
+  // Handle stop extraction
+  const handleStopExtraction = () => {
+    if (activeExtractor) {
+      activeExtractor.stop();
+      setActiveExtractor(null);
+      setExtractorStatus({
+        status: 'idle',
+        message: 'Extraction stopped',
+        progress: { current: 0, total: 0 }
+      });
+      toast({
+        title: "Extraction Stopped",
+        description: "Extraction process has been stopped.",
       });
     }
   };
@@ -222,6 +275,26 @@ export function Dashboard() {
                 message={extractorStatus.message}
                 progress={extractorStatus.progress}
               />
+              
+              {/* Extraction Controls */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle>Extraction Controls</CardTitle>
+                  <CardDescription>
+                    Control the extraction process
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ExtractionControls
+                    status={extractorStatus.status}
+                    onPause={handlePauseExtraction}
+                    onResume={handleResumeExtraction}
+                    onStop={handleStopExtraction}
+                    onIntervalChange={handleIntervalChange}
+                    disabled={!activeExtractor}
+                  />
+                </CardContent>
+              </Card>
               
               {/* Extract Options */}
               <Card>

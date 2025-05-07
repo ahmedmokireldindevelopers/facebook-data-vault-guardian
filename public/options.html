@@ -106,6 +106,25 @@
       background-color: #FF4081;
       color: white;
     }
+    
+    .range-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .range-control input[type="range"] {
+      flex: 1;
+    }
+    
+    .range-value {
+      min-width: 60px;
+      text-align: center;
+      padding: 5px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -146,6 +165,23 @@
       <input type="checkbox" id="real-time-sync" checked />
       Enable real-time data synchronization
     </label>
+    
+    <div class="mt-4">
+      <label for="extraction-interval">Time Interval Between Extractions (ms)</label>
+      <div class="range-control">
+        <input type="range" id="extraction-interval" min="100" max="2000" step="100" value="500" />
+        <span class="range-value" id="interval-value">500ms</span>
+      </div>
+      <p>Adjust the speed of extraction. Slower speeds may help prevent detection and rate limiting.</p>
+    </div>
+    
+    <label for="retry-attempts">Retry Attempts</label>
+    <select id="retry-attempts">
+      <option value="1">1 time</option>
+      <option value="3" selected>3 times</option>
+      <option value="5">5 times</option>
+      <option value="10">10 times</option>
+    </select>
   </div>
   
   <div class="option-section">

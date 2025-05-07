@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('save-options').addEventListener('click', saveOptions);
   document.getElementById('upgrade-subscription').addEventListener('click', upgradeSubscription);
   
+  // Extraction interval control
+  const intervalSlider = document.getElementById('extraction-interval');
+  const intervalValue = document.getElementById('interval-value');
+  
+  intervalSlider.addEventListener('input', function() {
+    intervalValue.textContent = `${this.value}ms`;
+  });
+  
   // Language selector
   const languageOptions = document.querySelectorAll('.language-option');
   languageOptions.forEach(option => {
@@ -28,7 +36,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load settings from storage
 function loadSettings() {
-  chrome.storage.local.get(['storageConfig', 'subscription', 'language', 'extractionSettings', 'exportPrefs'], function(data) {
+  chrome.storage.local.get([
+    'storageConfig', 
+    'subscription', 
+    'language', 
+    'extractionSettings', 
+    'exportPrefs',
+    'extractionInterval',
+    'retryAttempts'
+  ], function(data) {
     // Update storage path
     if (data.storageConfig && data.storageConfig.basePath) {
       const path = `${data.storageConfig.basePath}/${data.storageConfig.extractedDataFolder}/`;
@@ -76,6 +92,17 @@ function loadSettings() {
       document.getElementById('real-time-sync').checked = !!data.extractionSettings.realTimeSync;
     }
     
+    // Update extraction interval
+    if (data.extractionInterval) {
+      document.getElementById('extraction-interval').value = data.extractionInterval;
+      document.getElementById('interval-value').textContent = `${data.extractionInterval}ms`;
+    }
+    
+    // Update retry attempts
+    if (data.retryAttempts) {
+      document.getElementById('retry-attempts').value = data.retryAttempts;
+    }
+    
     // Update export preferences
     if (data.exportPrefs && data.exportPrefs.defaultFormat) {
       document.getElementById('default-export').value = data.exportPrefs.defaultFormat;
@@ -93,6 +120,9 @@ function saveOptions() {
   const activeLanguage = document.querySelector('.language-option.active');
   const language = activeLanguage ? activeLanguage.getAttribute('data-lang') : 'en';
   
+  const extractionInterval = parseInt(document.getElementById('extraction-interval').value);
+  const retryAttempts = parseInt(document.getElementById('retry-attempts').value);
+  
   const settings = {
     storageConfig: {
       basePath,
@@ -106,7 +136,9 @@ function saveOptions() {
     },
     exportPrefs: {
       defaultFormat: document.getElementById('default-export').value
-    }
+    },
+    extractionInterval,
+    retryAttempts
   };
   
   chrome.storage.local.set(settings, function() {

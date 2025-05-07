@@ -38,6 +38,9 @@ abstract class DataExtractor {
   protected status: 'idle' | 'extracting' | 'complete' | 'error' = 'idle';
   protected message: string = 'Ready to extract';
   protected progress: { current: number; total: number } = { current: 0, total: 0 };
+  protected isPaused: boolean = false;
+  protected isStopped: boolean = false;
+  protected currentIndex: number = 0;
   
   // Listeners
   private statusListeners: ((status: string) => void)[] = [];
@@ -46,6 +49,13 @@ abstract class DataExtractor {
   constructor(source: string, type: string) {
     this.source = source;
     this.type = type;
+    
+    // Load saved delay setting
+    chrome.storage.local.get("extractionInterval", (data) => {
+      if (data.extractionInterval) {
+        this.delay = data.extractionInterval;
+      }
+    });
   }
   
   // Get current status
@@ -55,6 +65,31 @@ abstract class DataExtractor {
       message: this.message,
       progress: this.progress
     };
+  }
+  
+  // Set delay between requests
+  setDelay(delay: number) {
+    this.delay = delay;
+  }
+  
+  // Pause extraction
+  pause() {
+    this.isPaused = true;
+  }
+  
+  // Resume extraction
+  resume() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.continueExtraction();
+    }
+  }
+  
+  // Stop extraction
+  stop() {
+    this.isStopped = true;
+    this.isPaused = false;
+    this.reset();
   }
   
   // Add listeners
@@ -100,12 +135,16 @@ abstract class DataExtractor {
     this.status = 'idle';
     this.message = 'Ready to extract';
     this.progress = { current: 0, total: 0 };
+    this.currentIndex = 0;
     this.notifyStatusListeners();
     this.notifyProgressListeners();
   }
   
   // Abstract method for data extraction
   abstract extract(): Promise<void>;
+  
+  // Abstract method to continue extraction after pause
+  protected abstract continueExtraction(): Promise<void>;
   
   // Helper method to simulate API request with rate limiting
   protected async simulateRequest<T>(mockData: T[], index: number): Promise<T> {
@@ -146,9 +185,37 @@ export class FriendsExtractor extends DataExtractor {
     try {
       this.updateStatus('extracting', 'Extracting friend data from Facebook...');
       this.updateProgress(0, mockFriendData.length);
+      this.isPaused = false;
+      this.isStopped = false;
+      this.currentIndex = 0;
       
-      let processed = 0;
-      for (let i = 0; i < mockFriendData.length; i++) {
+      await this.continueExtraction();
+    } catch (error) {
+      console.error('Error extracting friends:', error);
+      this.updateStatus('error', 'Failed to extract friend data.');
+      toast({
+        title: "Extraction Failed",
+        description: "Failed to extract friend data.",
+        variant: "destructive",
+      });
+    }
+  }
+  
+  protected async continueExtraction(): Promise<void> {
+    try {
+      let processed = this.currentIndex;
+      
+      for (let i = this.currentIndex; i < mockFriendData.length; i++) {
+        // Check if extraction was paused or stopped
+        if (this.isPaused) {
+          this.currentIndex = i;
+          return;
+        }
+        
+        if (this.isStopped) {
+          return;
+        }
+        
         try {
           // Simulate API request
           const friend = await this.simulateRequest(mockFriendData, i);
@@ -174,13 +241,8 @@ export class FriendsExtractor extends DataExtractor {
         description: `Successfully extracted ${processed} friends.`,
       });
     } catch (error) {
-      console.error('Error extracting friends:', error);
+      console.error('Error continuing friends extraction:', error);
       this.updateStatus('error', 'Failed to extract friend data.');
-      toast({
-        title: "Extraction Failed",
-        description: "Failed to extract friend data.",
-        variant: "destructive",
-      });
     }
   }
 }
@@ -195,9 +257,37 @@ export class MessagesExtractor extends DataExtractor {
     try {
       this.updateStatus('extracting', 'Extracting message data from Facebook...');
       this.updateProgress(0, mockMessageData.length);
+      this.isPaused = false;
+      this.isStopped = false;
+      this.currentIndex = 0;
       
-      let processed = 0;
-      for (let i = 0; i < mockMessageData.length; i++) {
+      await this.continueExtraction();
+    } catch (error) {
+      console.error('Error extracting messages:', error);
+      this.updateStatus('error', 'Failed to extract message data.');
+      toast({
+        title: "Extraction Failed",
+        description: "Failed to extract message data.",
+        variant: "destructive",
+      });
+    }
+  }
+  
+  protected async continueExtraction(): Promise<void> {
+    try {
+      let processed = this.currentIndex;
+      
+      for (let i = this.currentIndex; i < mockMessageData.length; i++) {
+        // Check if extraction was paused or stopped
+        if (this.isPaused) {
+          this.currentIndex = i;
+          return;
+        }
+        
+        if (this.isStopped) {
+          return;
+        }
+        
         try {
           // Simulate API request
           const message = await this.simulateRequest(mockMessageData, i);
@@ -223,13 +313,8 @@ export class MessagesExtractor extends DataExtractor {
         description: `Successfully extracted ${processed} message threads.`,
       });
     } catch (error) {
-      console.error('Error extracting messages:', error);
+      console.error('Error continuing messages extraction:', error);
       this.updateStatus('error', 'Failed to extract message data.');
-      toast({
-        title: "Extraction Failed",
-        description: "Failed to extract message data.",
-        variant: "destructive",
-      });
     }
   }
 }
@@ -244,9 +329,37 @@ export class PostsExtractor extends DataExtractor {
     try {
       this.updateStatus('extracting', 'Extracting post data from Facebook...');
       this.updateProgress(0, mockPostData.length);
+      this.isPaused = false;
+      this.isStopped = false;
+      this.currentIndex = 0;
       
-      let processed = 0;
-      for (let i = 0; i < mockPostData.length; i++) {
+      await this.continueExtraction();
+    } catch (error) {
+      console.error('Error extracting posts:', error);
+      this.updateStatus('error', 'Failed to extract post data.');
+      toast({
+        title: "Extraction Failed",
+        description: "Failed to extract post data.",
+        variant: "destructive",
+      });
+    }
+  }
+  
+  protected async continueExtraction(): Promise<void> {
+    try {
+      let processed = this.currentIndex;
+      
+      for (let i = this.currentIndex; i < mockPostData.length; i++) {
+        // Check if extraction was paused or stopped
+        if (this.isPaused) {
+          this.currentIndex = i;
+          return;
+        }
+        
+        if (this.isStopped) {
+          return;
+        }
+        
         try {
           // Simulate API request
           const post = await this.simulateRequest(mockPostData, i);
@@ -272,13 +385,8 @@ export class PostsExtractor extends DataExtractor {
         description: `Successfully extracted ${processed} posts.`,
       });
     } catch (error) {
-      console.error('Error extracting posts:', error);
+      console.error('Error continuing posts extraction:', error);
       this.updateStatus('error', 'Failed to extract post data.');
-      toast({
-        title: "Extraction Failed",
-        description: "Failed to extract post data.",
-        variant: "destructive",
-      });
     }
   }
 }
@@ -293,9 +401,37 @@ export class GroupsExtractor extends DataExtractor {
     try {
       this.updateStatus('extracting', 'Extracting group data from Facebook...');
       this.updateProgress(0, mockGroupData.length);
+      this.isPaused = false;
+      this.isStopped = false;
+      this.currentIndex = 0;
       
-      let processed = 0;
-      for (let i = 0; i < mockGroupData.length; i++) {
+      await this.continueExtraction();
+    } catch (error) {
+      console.error('Error extracting groups:', error);
+      this.updateStatus('error', 'Failed to extract group data.');
+      toast({
+        title: "Extraction Failed",
+        description: "Failed to extract group data.",
+        variant: "destructive",
+      });
+    }
+  }
+  
+  protected async continueExtraction(): Promise<void> {
+    try {
+      let processed = this.currentIndex;
+      
+      for (let i = this.currentIndex; i < mockGroupData.length; i++) {
+        // Check if extraction was paused or stopped
+        if (this.isPaused) {
+          this.currentIndex = i;
+          return;
+        }
+        
+        if (this.isStopped) {
+          return;
+        }
+        
         try {
           // Simulate API request
           const group = await this.simulateRequest(mockGroupData, i);
@@ -321,13 +457,8 @@ export class GroupsExtractor extends DataExtractor {
         description: `Successfully extracted ${processed} groups.`,
       });
     } catch (error) {
-      console.error('Error extracting groups:', error);
+      console.error('Error continuing groups extraction:', error);
       this.updateStatus('error', 'Failed to extract group data.');
-      toast({
-        title: "Extraction Failed",
-        description: "Failed to extract group data.",
-        variant: "destructive",
-      });
     }
   }
 }
