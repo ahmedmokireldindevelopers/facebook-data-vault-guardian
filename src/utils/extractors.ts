@@ -1,4 +1,3 @@
-
 import secureStorage, { DataRecord } from './storage';
 import { toast } from "@/hooks/use-toast";
 
@@ -50,12 +49,14 @@ abstract class DataExtractor {
     this.source = source;
     this.type = type;
     
-    // Load saved delay setting
-    chrome.storage.local.get("extractionInterval", (data) => {
-      if (data.extractionInterval) {
-        this.delay = data.extractionInterval;
-      }
-    });
+    // Load saved delay setting with proper check for Chrome API
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get("extractionInterval", (data) => {
+        if (data.extractionInterval) {
+          this.delay = data.extractionInterval;
+        }
+      });
+    }
   }
   
   // Get current status

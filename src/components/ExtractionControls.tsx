@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
-import { Pause, Play, Stop, RefreshCw } from "lucide-react";
+import { Pause, Play, Square, RefreshCw } from "lucide-react";
 
 interface ExtractionControlsProps {
   status: string;
@@ -27,11 +27,14 @@ export function ExtractionControls({
 
   // Load saved interval on component mount
   useEffect(() => {
-    chrome.storage.local.get("extractionInterval", (data) => {
-      if (data.extractionInterval) {
-        setInterval(data.extractionInterval);
-      }
-    });
+    // Use chrome API with proper checking
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.get("extractionInterval", (data) => {
+        if (data.extractionInterval) {
+          setInterval(data.extractionInterval);
+        }
+      });
+    }
   }, []);
 
   const handleIntervalChange = (value: number[] | number) => {
@@ -39,7 +42,9 @@ export function ExtractionControls({
     setInterval(newInterval);
     
     // Save to storage and notify parent
-    chrome.storage.local.set({ extractionInterval: newInterval });
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      chrome.storage.local.set({ extractionInterval: newInterval });
+    }
     onIntervalChange(newInterval);
   };
 
@@ -74,7 +79,7 @@ export function ExtractionControls({
           disabled={disabled || status === "idle" || status === "complete" || status === "error"}
           className="flex-1"
         >
-          <Stop className="mr-2 h-4 w-4" /> Stop
+          <Square className="mr-2 h-4 w-4" /> Stop
         </Button>
       </div>
       
