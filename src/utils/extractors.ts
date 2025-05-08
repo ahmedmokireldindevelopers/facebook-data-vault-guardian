@@ -50,8 +50,8 @@ abstract class DataExtractor {
     this.type = type;
     
     // Load saved delay setting with proper check for Chrome API
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get("extractionInterval", (data) => {
+    if (typeof window !== 'undefined' && window.chrome && window.chrome.storage) {
+      window.chrome.storage.local.get("extractionInterval", (data) => {
         if (data.extractionInterval) {
           this.delay = data.extractionInterval;
         }
