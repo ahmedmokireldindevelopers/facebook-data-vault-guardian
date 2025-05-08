@@ -27,8 +27,8 @@ export function ExtractionControls({
 
   // Load saved interval on component mount
   useEffect(() => {
-    // Use chrome API with proper checking
-    if (typeof window !== 'undefined' && window.chrome && window.chrome.storage) {
+    // Use chrome API with proper type checking
+    if (typeof window !== 'undefined' && 'chrome' in window && window.chrome?.storage) {
       window.chrome.storage.local.get("extractionInterval", (data) => {
         if (data.extractionInterval) {
           setInterval(data.extractionInterval);
@@ -42,7 +42,7 @@ export function ExtractionControls({
     setInterval(newInterval);
     
     // Save to storage and notify parent
-    if (typeof window !== 'undefined' && window.chrome && window.chrome.storage) {
+    if (typeof window !== 'undefined' && 'chrome' in window && window.chrome?.storage) {
       window.chrome.storage.local.set({ extractionInterval: newInterval });
     }
     onIntervalChange(newInterval);
