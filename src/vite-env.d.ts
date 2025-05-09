@@ -25,6 +25,7 @@ interface Chrome {
   };
 }
 
+// Define chrome object on window globally
 declare global {
   interface Window {
     chrome: Chrome;
