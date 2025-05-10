@@ -10,6 +10,7 @@ import { t } from "@/utils/i18n";
 import { AddSubscriberDialog } from "@/components/AddSubscriberDialog";
 import { SubscriberTable, Subscriber } from "@/components/admin/SubscriberTable";
 import { SubscriberFilter, AdminView } from "@/components/admin/SubscriberFilter";
+import { SubscriberPagination } from "@/components/admin/SubscriberPagination";
 import { AccessDenied } from "@/components/admin/AccessDenied";
 
 // Mock subscriber data (would be fetched from actual database in production)
@@ -48,10 +49,33 @@ const mockSubscribers: Subscriber[] = [
   }
 ];
 
+// For demo purposes, let's add more mock subscribers
+const generateMoreSubscribers = (): Subscriber[] => {
+  const additionalSubscribers: Subscriber[] = [];
+  const tiers: ("basic" | "premium" | "enterprise")[] = ["basic", "premium", "enterprise"];
+  const roles: ("admin" | "user")[] = ["admin", "user"];
+  
+  for (let i = 5; i <= 25; i++) {
+    additionalSubscribers.push({
+      id: `sub-${i}`,
+      name: `User ${i}`,
+      email: `user${i}@example.com`,
+      tier: tiers[Math.floor(Math.random() * tiers.length)],
+      expiresAt: new Date(Date.now() + (Math.random() * 100 - 20) * 86400000).toISOString(),
+      role: roles[Math.floor(Math.random() * roles.length)]
+    });
+  }
+  
+  return [...mockSubscribers, ...additionalSubscribers];
+};
+
 export function AdminSubscriberPage() {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>(mockSubscribers);
+  const allSubscribers = generateMoreSubscribers();
+  const [subscribers, setSubscribers] = useState<Subscriber[]>(allSubscribers);
   const [searchQuery, setSearchQuery] = useState("");
   const [view, setView] = useState<AdminView>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const { user } = useAuth();
 
   // Check if current user is admin
@@ -77,6 +101,22 @@ export function AdminSubscriberPage() {
     
     return true;
   });
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(filteredSubscribers.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredSubscribers.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, view]);
+
+  // Handle page change
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
 
   // Handle role toggle (in a real app, this would update the database)
   const toggleRole = (id: string) => {
@@ -136,9 +176,16 @@ export function AdminSubscriberPage() {
           </CardHeader>
           <CardContent>
             <SubscriberTable 
-              subscribers={filteredSubscribers}
+              subscribers={currentItems}
               onToggleRole={toggleRole}
             />
+            {filteredSubscribers.length > 0 && (
+              <SubscriberPagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                onPageChange={handlePageChange} 
+              />
+            )}
           </CardContent>
         </Card>
       </main>
