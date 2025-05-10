@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
@@ -10,14 +9,27 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, Search, UserPlus, Shield, UserCheck, ShieldX } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { t } from "@/utils/i18n";
+import { AddSubscriberDialog } from "@/components/AddSubscriberDialog";
+
+// Types for our components
+type Subscriber = {
+  id: string;
+  name: string;
+  email: string;
+  tier: "basic" | "premium" | "enterprise"; // Fixed specific union type
+  expiresAt: string;
+  role: "admin" | "user"; // Fixed specific union type
+};
+
+type AdminView = "all" | "active" | "expired" | "admins";
 
 // Mock subscriber data (would be fetched from actual database in production)
-const mockSubscribers = [
+const mockSubscribers: Subscriber[] = [
   {
     id: "sub-1",
     name: "Alice Johnson",
     email: "alice@example.com",
-    tier: "premium",
+    tier: "premium", // Now matches the Subscriber type
     expiresAt: new Date(Date.now() + 25 * 86400000).toISOString(),
     role: "user"
   },
@@ -25,7 +37,7 @@ const mockSubscribers = [
     id: "sub-2",
     name: "Bob Smith",
     email: "bob@example.com",
-    tier: "basic",
+    tier: "basic", // Now matches the Subscriber type
     expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(),
     role: "user"
   },
@@ -33,7 +45,7 @@ const mockSubscribers = [
     id: "sub-3",
     name: "Carol Williams",
     email: "carol@example.com",
-    tier: "enterprise",
+    tier: "enterprise", // Now matches the Subscriber type
     expiresAt: new Date(Date.now() + 60 * 86400000).toISOString(),
     role: "admin"
   },
@@ -41,23 +53,11 @@ const mockSubscribers = [
     id: "sub-4",
     name: "David Brown",
     email: "david@example.com",
-    tier: "basic",
+    tier: "basic", // Now matches the Subscriber type
     expiresAt: new Date(Date.now() - 5 * 86400000).toISOString(), // expired
     role: "user"
   }
 ];
-
-// Types for our components
-type Subscriber = {
-  id: string;
-  name: string;
-  email: string;
-  tier: "basic" | "premium" | "enterprise";
-  expiresAt: string;
-  role: "admin" | "user";
-};
-
-type AdminView = "all" | "active" | "expired" | "admins";
 
 export function AdminSubscriberPage() {
   const [subscribers, setSubscribers] = useState<Subscriber[]>(mockSubscribers);
@@ -146,10 +146,7 @@ export function AdminSubscriberPage() {
             </Link>
             <h1 className="text-2xl font-bold">{t('admin.subscribers_management')}</h1>
           </div>
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Subscriber
-          </Button>
+          <AddSubscriberDialog />
         </div>
         
         <Card>
