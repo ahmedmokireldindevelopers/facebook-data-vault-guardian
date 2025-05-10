@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -12,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth, SubscriptionTier } from "@/contexts/AuthContext";
 import { t } from "@/utils/i18n";
-import { CreditCard, LogOut, Settings, User, Users, Shield } from "lucide-react";
+import { CreditCard, LogOut, Settings, User, Users, LayoutDashboard } from "lucide-react";
 
 export function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -97,10 +98,16 @@ export function ProfileMenu() {
           </DropdownMenuItem>
         </Link>
         
-        {/* Admin link - only shown for enterprise tier users or full admins */}
+        {/* Admin links - only shown for enterprise tier users or full admins */}
         {isAdmin && (
           <>
             <DropdownMenuSeparator />
+            <Link to="/admin/dashboard" onClick={() => setOpen(false)}>
+              <DropdownMenuItem className="cursor-pointer">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                <span>Admin Dashboard</span>
+              </DropdownMenuItem>
+            </Link>
             <Link to="/admin/subscribers" onClick={() => setOpen(false)}>
               <DropdownMenuItem className="cursor-pointer">
                 <Users className="mr-2 h-4 w-4" />

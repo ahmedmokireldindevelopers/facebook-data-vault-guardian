@@ -17,6 +17,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SubscriptionPage from "./pages/SubscriptionPage";
 import AdminSubscriberPage from "./pages/AdminSubscriberPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
       <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
       <Route path="/subscription" element={<ProtectedRoute element={<SubscriptionPage />} />} />
+      <Route path="/admin/dashboard" element={<ProtectedRoute element={<AdminDashboardPage />} />} />
       <Route path="/admin/subscribers" element={<ProtectedRoute element={<AdminSubscriberPage />} />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
