@@ -16,6 +16,7 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import SubscriptionPage from "./pages/SubscriptionPage";
+import AdminSubscriberPage from "./pages/AdminSubscriberPage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,22 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   return isAuthenticated ? element : <Navigate to="/login" replace />;
 };
 
+// Admin route component
+const AdminRoute = ({ element }: { element: React.ReactNode }) => {
+  const { user, isLoading, isAuthenticated } = useAuth();
+  
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="inline-block h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+    </div>;
+  }
+  
+  // Check if user is authenticated and has admin permission (enterprise tier)
+  const isAdmin = isAuthenticated && user?.subscription?.tier === "enterprise";
+  
+  return isAdmin ? element : <Navigate to="/dashboard" replace />;
+};
+
 // Auth wrapper component
 const AuthenticatedApp = () => {
   return (
@@ -42,6 +59,7 @@ const AuthenticatedApp = () => {
       <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
       <Route path="/subscription" element={<ProtectedRoute element={<SubscriptionPage />} />} />
+      <Route path="/admin/subscribers" element={<ProtectedRoute element={<AdminSubscriberPage />} />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

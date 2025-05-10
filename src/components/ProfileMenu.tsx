@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth, SubscriptionTier } from "@/contexts/AuthContext";
 import { t } from "@/utils/i18n";
-import { CreditCard, LogOut, Settings, User } from "lucide-react";
+import { CreditCard, LogOut, Settings, User, Users } from "lucide-react";
 
 export function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -44,6 +44,9 @@ export function ProfileMenu() {
         return 'subscription-badge-basic';
     }
   };
+
+  // Check if user has admin access (enterprise tier)
+  const isAdmin = user.subscription.tier === "enterprise";
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -91,6 +94,20 @@ export function ProfileMenu() {
             <span>{t('subscription.management')}</span>
           </DropdownMenuItem>
         </Link>
+        
+        {/* Admin link - only shown for enterprise tier users */}
+        {isAdmin && (
+          <>
+            <DropdownMenuSeparator />
+            <Link to="/admin/subscribers" onClick={() => setOpen(false)}>
+              <DropdownMenuItem className="cursor-pointer">
+                <Users className="mr-2 h-4 w-4" />
+                <span>Manage Subscribers</span>
+              </DropdownMenuItem>
+            </Link>
+          </>
+        )}
+        
         <DropdownMenuSeparator />
         <DropdownMenuItem className="cursor-pointer" onClick={() => logout()}>
           <LogOut className="mr-2 h-4 w-4" />
