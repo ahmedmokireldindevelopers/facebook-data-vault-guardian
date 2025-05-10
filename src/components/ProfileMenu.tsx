@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -13,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth, SubscriptionTier } from "@/contexts/AuthContext";
 import { t } from "@/utils/i18n";
-import { CreditCard, LogOut, Settings, User, Users } from "lucide-react";
+import { CreditCard, LogOut, Settings, User, Users, Shield } from "lucide-react";
 
 export function ProfileMenu() {
   const { user, logout } = useAuth();
@@ -45,8 +44,8 @@ export function ProfileMenu() {
     }
   };
 
-  // Check if user has admin access (enterprise tier)
-  const isAdmin = user.subscription.tier === "enterprise";
+  // Check if user has admin access (enterprise tier or full admin)
+  const isAdmin = user.subscription.tier === "enterprise" || user.isFullAdmin;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
@@ -62,6 +61,9 @@ export function ProfileMenu() {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium">{user.name}</p>
             <p className="text-xs text-muted-foreground">{user.email}</p>
+            {user.isFullAdmin && (
+              <p className="text-xs font-medium text-primary">Full Admin Access</p>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -95,7 +97,7 @@ export function ProfileMenu() {
           </DropdownMenuItem>
         </Link>
         
-        {/* Admin link - only shown for enterprise tier users */}
+        {/* Admin link - only shown for enterprise tier users or full admins */}
         {isAdmin && (
           <>
             <DropdownMenuSeparator />

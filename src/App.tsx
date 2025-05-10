@@ -43,8 +43,8 @@ const AdminRoute = ({ element }: { element: React.ReactNode }) => {
     </div>;
   }
   
-  // Check if user is authenticated and has admin permission (enterprise tier)
-  const isAdmin = isAuthenticated && user?.subscription?.tier === "enterprise";
+  // Check if user is authenticated and has admin permission (enterprise tier or isFullAdmin)
+  const isAdmin = isAuthenticated && (user?.subscription?.tier === "enterprise" || user?.isFullAdmin);
   
   return isAdmin ? element : <Navigate to="/dashboard" replace />;
 };

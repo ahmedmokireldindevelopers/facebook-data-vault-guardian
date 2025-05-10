@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +13,7 @@ export interface User {
     expiresAt: string;
     features: string[];
   };
+  isFullAdmin?: boolean; // Added for full admin control
 }
 
 interface AuthContextType {
@@ -35,19 +35,28 @@ export const useAuth = () => {
   return context;
 };
 
+// List of emails with full admin privileges regardless of subscription tier
+const fullAdminEmails = ["ahmedmokireldin.developers@gmail.com"];
+
 // Mock API calls for now - would be replaced with real API in production
 const mockLogin = async (email: string, password: string): Promise<User> => {
   return new Promise((resolve) => {
     setTimeout(() => {
+      // Check if the email is in the fullAdminEmails list
+      const isFullAdmin = fullAdminEmails.includes(email.toLowerCase());
+      
       resolve({
         id: 'user-123',
         email,
         name: 'Demo User',
         subscription: {
-          tier: 'premium',
+          tier: isFullAdmin ? 'enterprise' : 'premium', // Ensure full admins always have enterprise access
           expiresAt: new Date(Date.now() + 30 * 86400000).toISOString(), // 30 days from now
-          features: ['bulk_extraction', 'export_all', 'advanced_filters']
-        }
+          features: isFullAdmin 
+            ? ['bulk_extraction', 'export_all', 'advanced_filters', 'admin_access'] 
+            : ['bulk_extraction', 'export_all', 'advanced_filters']
+        },
+        isFullAdmin // Add the isFullAdmin flag
       });
     }, 1000);
   });
@@ -85,7 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('user', JSON.stringify(user));
       toast({
         title: "Login Successful",
-        description: `Welcome back, ${user.name}!`,
+        description: `Welcome back, ${user.name}!${user.isFullAdmin ? ' (Full Admin Access)' : ''}`,
       });
       navigate('/dashboard');
     } catch (error) {
@@ -135,7 +144,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           tier: 'basic',
           expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(), // 7 days free trial
           features: ['basic_extraction']
-        }
+        },
+        isFullAdmin: false // Set isFullAdmin to false for non-full admin users
       };
       
       setUser(mockUser);

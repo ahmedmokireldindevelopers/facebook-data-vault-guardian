@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { ArrowLeft, Search, UserPlus, Shield, UserCheck, ShieldX } from "lucide-react";
+import { ArrowLeft, Search, UserPlus, Shield, UserCheck, ShieldX, ShieldCheck } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { t } from "@/utils/i18n";
 import { AddSubscriberDialog } from "@/components/AddSubscriberDialog";
@@ -66,7 +66,8 @@ export function AdminSubscriberPage() {
   const { user } = useAuth();
 
   // Check if current user is admin
-  const isAdmin = user?.subscription?.tier === "enterprise";
+  const isAdmin = user?.subscription?.tier === "enterprise" || user?.isFullAdmin;
+  const isFullAdmin = user?.isFullAdmin;
 
   // Filter subscribers based on view and search query
   const filteredSubscribers = subscribers.filter(sub => {
@@ -144,7 +145,15 @@ export function AdminSubscriberPage() {
                 <ArrowLeft size={18} />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">{t('admin.subscribers_management')}</h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold">{t('admin.subscribers_management')}</h1>
+              {isFullAdmin && (
+                <span className="text-sm text-primary flex items-center gap-1">
+                  <ShieldCheck size={14} className="inline-block" />
+                  Full Admin Control
+                </span>
+              )}
+            </div>
           </div>
           <AddSubscriberDialog />
         </div>
