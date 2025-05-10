@@ -52,7 +52,6 @@ export function SubscriberPagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious 
-            onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
             className={currentPage <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
             href="#"
             onClick={(e) => {
